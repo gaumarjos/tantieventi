@@ -1,6 +1,7 @@
 import datetime
 import os
 import shutil
+import argparse
 
 # Unused fields
 # UID:
@@ -79,11 +80,25 @@ END:VCALENDAR""".format(
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        prog='TantiEventi',
+        description='Generate a number of .ics calendar event files with summary "summary + incremental number".')
+    parser.add_argument('summary')  # positional argument
+    parser.add_argument('-y', '--year', dest='year', required=False, default=datetime.datetime.today().year)
+    parser.add_argument('-m', '--month', dest='month', required=False, default=datetime.datetime.today().month)
+    parser.add_argument('-d', '--day', dest='day', required=False, default=datetime.datetime.today().day)
+    parser.add_argument('-n', '--number', dest='number', required=True, help='Number of events to generate')
+    parser.add_argument('-s', '--startat', dest='startat', required=False, default=1,
+                        help='Progressive # of the first event')
+    parser.add_argument('-a', '--allday', dest='allday', required=False, default=True,
+                        help='Whether the events will be all-day, interpreted as a boolean')
+    args = parser.parse_args()
+
     empty_folder()
-    weekly("Piano - 100K settimana ",
-           start_year=2022,
-           start_month=10,
-           start_day=24,
-           n=5,
-           start_at=2,
-           all_day=True)
+    weekly(args.summary + " ",
+           start_year=args.year,
+           start_month=args.month,
+           start_day=args.day,
+           n=int(args.number),
+           start_at=args.startat,
+           all_day=bool(args.allday))
