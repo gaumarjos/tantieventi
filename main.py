@@ -12,18 +12,21 @@ FOLDER = "generated_events/"
 
 
 def empty_folder(folder=FOLDER):
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (file_path, e))
+    if os.path.exists(folder):
+        for filename in os.listdir(folder):
+            file_path = os.path.join(folder, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print('Failed to delete %s. Reason: %s' % (file_path, e))
+    else:
+        os.mkdir(folder)
 
 
-def weekly(summary_s, start_year, start_month, start_day, n, start_at=1, all_day=True, debug=False):
+def weekly(summary_s, start_year, start_month, start_day, n, start_at=1, all_day=True, folder=FOLDER, debug=False):
     now = datetime.datetime.now()
     today_s = "{}{:02d}{:02d}T{:02d}{:02d}{:02d}Z".format(now.year, now.month, now.day, now.hour, now.minute,
                                                           now.second)
@@ -74,7 +77,7 @@ END:VCALENDAR""".format(
         if debug:
             print(s)
 
-        f = open(FOLDER + "event {}.ics".format(i + start_at), "w")
+        f = open(folder + "event {}.ics".format(i + start_at), "w")
         f.write(s)
         f.close()
 
@@ -92,13 +95,16 @@ if __name__ == '__main__':
                         help='Progressive # of the first event')
     parser.add_argument('-a', '--allday', dest='allday', required=False, default=True,
                         help='Whether the events will be all-day, interpreted as a boolean')
+    parser.add_argument('-f', '--folder', dest='folder', required=False, default=FOLDER,
+                        help='Destination folder where event files are created. If not specified, a folder in the same location as the executable will be used.')
     args = parser.parse_args()
 
-    empty_folder()
+    empty_folder(folder=args.folder)
     weekly(args.summary + " ",
            start_year=args.year,
            start_month=args.month,
            start_day=args.day,
            n=int(args.number),
            start_at=args.startat,
-           all_day=bool(args.allday))
+           all_day=bool(args.allday),
+           folder=args.folder)
