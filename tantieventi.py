@@ -85,7 +85,7 @@ END:VCALENDAR""".format(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         prog='TantiEventi',
-        description='Generate a number of .ics calendar event files with summary "summary + incremental number".')
+        description='Generate a number of .ics calendar files with summary/name "summary + <counter>".')
     parser.add_argument('summary')  # positional argument
     parser.add_argument('-y', '--year', dest='year', required=False, default=datetime.datetime.today().year)
     parser.add_argument('-m', '--month', dest='month', required=False, default=datetime.datetime.today().month)
